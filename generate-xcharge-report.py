@@ -5,6 +5,7 @@ import config
 import requests
 import datetime
 import json
+import xlsxwriter
 
 baseURL = config.url
 searchURL = baseURL + "/rest/api/3/search"
@@ -72,6 +73,10 @@ class ReportItem:
     remainingEstimate = 0
     parent = ''
 
+    def __str__(self):
+        return 'key: {0} summary: {1} customer: {2} status: {3} parent: {4} hoursLogges: {5} estimate: {6}'.format(
+            self.key, self.summary, self.customer, self.status, self.parent, str(self.hoursLogged), str(self.remainingEstimate))
+
 
 reportItems = []
 
@@ -86,8 +91,11 @@ for issue in issuesWithTimeLogsInRange['issues']:
     if issue['fields']['customfield_10032']:
         reportItem.customer = issue['fields']['customfield_10032'][0]['value']
     # check if this exists first
-    if issue['fields']['parent']:
-        reportItem.parent = issue['fields']['parent']['key']
+    try:
+        if issue['fields']['parent']:
+            reportItem.parent = issue['fields']['parent']['key']
+    except KeyError:
+        pass
     reportItems.append(reportItem)
 
 # get worklogs from issues within date range
@@ -98,5 +106,30 @@ for reportItem in reportItems:
         fromDateTime, toDateTime, reportItem.key)
     reportItem.hoursLogged = hrsSpent
 
+# export to spreadsheet
+workbook = xlsxwriter.Workbook('CrossChargeReport.xlsx')
+worksheet = workbook.add_worksheet()
+
+# Start from the first cell. Rows and columns are zero indexed.
+worksheet.write(0, 0, 'Key')
+worksheet.write(0, 1, 'Summary')
+worksheet.write(0, 2, 'Parent')
+worksheet.write(0, 3, 'Customer')
+worksheet.write(0, 4, 'Status')
+worksheet.write(0, 5, 'Hours Remaining')
+worksheet.write(0, 6, 'Hours Spent')
+
+row = 1
+col = 0
+
 for reportItem in reportItems:
-    print(reportItem)
+    worksheet.write(row, 0, reportItem.key)
+    worksheet.write(row, 1, reportItem.summary)
+    worksheet.write(row, 2, reportItem.parent)
+    worksheet.write(row, 3, reportItem.customer)
+    worksheet.write(row, 4, reportItem.status)
+    worksheet.write(row, 5, reportItem.remainingEstimate)
+    worksheet.write(row, 6, reportItem.hoursLogged)
+    row += 1
+
+workbook.close()
