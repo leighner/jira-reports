@@ -7,14 +7,14 @@ import datetime
 import json
 import writeSpreadsheet
 
-baseURL = config.url
+baseURL = config.jiraUrl
 searchURL = baseURL + "/rest/api/3/search"
 issueURL = baseURL + "/rest/api/3/issue/CIS-120/worklog"
 issueWorkLogsURL = baseURL + "/rest/api/3/issue/{0}/worklog"
 crossChargeWithWorklogBetweenDatesTemplate = 'labels = XCharge AND worklogDate >= {0} AND worklogDate <= {1} order by cf[10032]'
 
 
-auth = HTTPBasicAuth(config.username, config.password)
+auth = HTTPBasicAuth(config.jiraUsername, config.jiraPassword)
 
 headers = {
     "Accept": "application/json"
