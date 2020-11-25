@@ -61,5 +61,5 @@ def sendEmail(fromAddress, toList, filePaths):
                         config.emailReceiver, msg.as_string())
 
 
-sendEmail(config.emailSender, config.emailReceiver, [
-          "CrossChargeReport.xlsx", "CrossChargeReport2.xlsx"])
+# sendEmail(config.emailSender, config.emailReceiver, [
+#          "CrossChargeReport.xlsx", "CrossChargeReport2.xlsx"])
