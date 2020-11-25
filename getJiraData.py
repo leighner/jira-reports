@@ -45,6 +45,18 @@ def getWorkLogs(date, key):
     return json.loads(response.text)
 
 
+def getHoursLoggedWithinDateRangeAndUser(fromDate, toDate, key, author):
+    totalSecondsSpent = 0
+    timeLogsForIssues = getWorkLogs(fromDate, key)
+    for worklog in timeLogsForIssues['worklogs']:
+        if worklog['author']['accountId'] == author:
+            logDate = parser.parse(worklog['started'])
+            if logDate >= fromDate and logDate <= toDate:
+                totalSecondsSpent = totalSecondsSpent + \
+                    worklog['timeSpentSeconds']
+    return totalSecondsSpent / 3600
+
+
 def getHoursLoggedWithinDateRange(fromDate, toDate, key):
     totalSecondsSpent = 0
     timeLogsForIssues = getWorkLogs(fromDate, key)
