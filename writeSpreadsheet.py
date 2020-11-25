@@ -27,20 +27,25 @@ def generateSpreadSheet(filename, reportItems, fromDate, toDate):
         worksheet.write(row, 5, reportItem.remainingEstimate)
         worksheet.write(row, 6, reportItem.hoursLogged)
         row += 1
-        totalTimeRemaining += reportItem.remainingEstimate
+        if reportItem.remainingEstimate:
+            totalTimeRemaining += reportItem.remainingEstimate
         totalTimeSpent += reportItem.hoursLogged
 
     # put it in a table with headers
-    worksheet.add_table(0, 0, row - 1, 6, {'header_row': True, 'columns': [{'header': 'Key'}, {'header': 'Summary'}, {
-                        'header': 'Parent'}, {'header': 'Customer'}, {'header': 'Status'}, {'header': 'Hours Remaining'}, {'header': 'Hours Spent'}]})
-
-    # write totals row
-    worksheet.write(row, 0, 'Total', bold)
-    worksheet.write(row, 5, str(totalTimeRemaining), bold)
-    worksheet.write(row, 6, str(totalTimeSpent), bold)
-    row += 2
+    worksheet.add_table(0, 0, row, 6, {
+        'header_row': True,
+        'columns': [
+            {'header': 'Key'},
+            {'header': 'Summary'},
+            {'header': 'Parent'},
+            {'header': 'Customer'},
+            {'header': 'Status'},
+            {'header': 'Hours Remaining', 'total_function': 'sum'},
+            {'header': 'Hours Spent', 'total_function': 'sum'}],
+        'total_row': True})
 
     # write disclaimer
+    row += 2
     worksheet.write(
         row, 0, 'Contains cross-charge from {0} through {1} inclusive.'.format(str(fromDate), str(toDate)), bold)
 

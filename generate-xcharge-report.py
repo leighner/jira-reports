@@ -11,7 +11,7 @@ baseURL = config.url
 searchURL = baseURL + "/rest/api/3/search"
 issueURL = baseURL + "/rest/api/3/issue/CIS-120/worklog"
 issueWorkLogsURL = baseURL + "/rest/api/3/issue/{0}/worklog"
-crossChargeWithWorklogBetweenDatesTemplate = 'labels = XCharge AND worklogDate >= {0} AND worklogDate <= {1}'
+crossChargeWithWorklogBetweenDatesTemplate = 'labels = XCharge AND worklogDate >= {0} AND worklogDate <= {1} order by cf[10032]'
 
 
 auth = HTTPBasicAuth(config.username, config.password)
@@ -20,8 +20,8 @@ headers = {
     "Accept": "application/json"
 }
 
-fromDate = "2020-10-1"
-toDate = "2020-11-1"
+fromDate = "2020-10-27"
+toDate = "2020-11-25"
 epoch = parser.parse("1970-1-1T00:00:00.000-0400").utcfromtimestamp(0)
 
 
@@ -87,6 +87,8 @@ for issue in issuesWithTimeLogsInRange['issues']:
     reportItem.key = issue['key']
     reportItem.status = issue['fields']['status']['name']
     reportItem.summary = issue['fields']['summary']
+    if issue['fields']['timeestimate']:
+        reportItem.remainingEstimate = issue['fields']['timeestimate'] / 3600
     # check if this exists first
     if issue['fields']['customfield_10032']:
         reportItem.customer = issue['fields']['customfield_10032'][0]['value']
