@@ -3,6 +3,6 @@
         "name": "Person's name",
         "jiraID": "jira id",
         "emailAddress": "person's email address",
-        "sendNag": null
+        "threshold": 30
     }
 ]

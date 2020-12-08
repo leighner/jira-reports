@@ -7,7 +7,7 @@ from email.mime.base import MIMEBase
 from email import encoders
 
 
-def sendEmail(fromAddress, toList, hoursLogged):
+def sendEmail(fromAddress, toList, hoursLogged, name):
     """ Sends a nag email. """
 
     msg = MIMEMultipart('alternative')
@@ -20,17 +20,20 @@ def sendEmail(fromAddress, toList, hoursLogged):
 <html>
     <head></head>
     <body>
-        <h2>Please log your time</h2>
-        <p>You only logged {0} hours in the last week.</p>
+        <p>Hi {0},</p>
+        <br/>
+        <p>You only logged <strong>{1}</strong> hours in the last week.</p>
+        <h2>Please log your time now.</h2>
         <p>We need accurate logging data to help us make informed decisions as an R&D group.</p>
-        <p>Please log last week's hours before anything else today.</p>
-        <p>Cheers,</p>
+        <p>Please log the last week's hours before doing anything else today.</p>
+        <br/>
+        <p>Thanks,</p>
         <strong>RG!</strong>
     </body>
 </html>
 """
 
-    richHtmlMessage = MIMEText(htmlMessage.format(hoursLogged), 'html')
+    richHtmlMessage = MIMEText(htmlMessage.format(name, hoursLogged), 'html')
     msg.attach(richHtmlMessage)
 
     attachments = []
@@ -44,4 +47,5 @@ def sendEmail(fromAddress, toList, hoursLogged):
         server.sendmail(config.emailSender,
                         config.emailReceiver, msg.as_string())
 
-#sendEmail(config.emailSender, config.emailReceiver, 20)
+
+# sendEmail(config.emailSender, config.emailReceiver, 20, 'Ryan')

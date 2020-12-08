@@ -10,10 +10,11 @@ import pytz
 print('begun new time-log-check-run on {0}'.format(datetime.datetime.now()))
 
 timezone = pytz.timezone("America/Montreal")
-toDateTime = timezone.localize(datetime.datetime.now())
+toDateTime = timezone.localize(
+    datetime.datetime.now() - datetime.timedelta(days=1))
 fromDateTime = toDateTime - datetime.timedelta(days=7)
 
-print('checking worklogs betwee {0} and {1}'.format(
+print('checking worklogs between {0} and {1}'.format(
     fromDateTime.date(), toDateTime.date()))
 
 threshold = 32
@@ -24,8 +25,8 @@ with open('teamMembers.json') as teamMemberFile:
 
 # print(teamMembers)
 
-
 for teamMember in teamMembers:
+    print("")
     print('checking hours logged for {0}'.format(teamMember['name']))
     issuesWithTimeLogsInRange = getJiraData.runJiraItemQuery(
         worklogQuery.format(teamMember['jiraID'], fromDateTime.date(), toDateTime.date()))
@@ -52,11 +53,11 @@ for teamMember in teamMembers:
     print("Total hours logged that week: {0}".format(totalHoursSpent))
     teamMember['reportItems'] = reportItems
 
-    if totalHoursSpent < threshold:
+    if totalHoursSpent < teamMember['threshold']:
         teamMember['sendNag'] = True
         print("Threshold not met.  Send nag email.")
         sendEmail(config.emailSender,
-                  teamMember['emailAddress'], totalHoursSpent)
+                  teamMember['emailAddress'], totalHoursSpent, teamMember['name'])
     else:
         teamMember['sendNag'] = False
         print("Threshold met.  Don't send nag email.")
