@@ -26,6 +26,7 @@ def sendEmail(fromAddress, toList, hoursLogged, name):
         <h2>Please log your time now.</h2>
         <p>We need accurate logging data to help us make informed decisions as an R&D group.</p>
         <p>Please log the last week's hours before doing anything else today.</p>
+        <p><a href="https://northstarutilities.atlassian.net/wiki/spaces/PROC/pages/96534543/Time+Logging+Policy">Click here for information on our time logging policy.</a></p>
         <br/>
         <p>Thanks,</p>
         <strong>RG!</strong>
