@@ -1,11 +1,9 @@
 import json
-import getJiraData
-import ReportItem
 from dateutil import parser
-from TimeLogEmailer import sendEmail
 import config
 import datetime
 import pytz
+from commonScripts import Emailer, ReportItem, getJiraData
 
 print('begun new time-log-check-run on {0}'.format(datetime.datetime.now()))
 
@@ -24,6 +22,23 @@ with open('teamMembers.json') as teamMemberFile:
     teamMembers = json.load(teamMemberFile)
 
 # print(teamMembers)
+htmlMessage = """ \
+<html>
+    <head></head>
+    <body>
+        <p>Hi {0},</p>
+        <br/>
+        <p>You only logged <strong>{1}</strong> hours in the last week.</p>
+        <h2>Please log your time now.</h2>
+        <p>We need accurate logging data to help us make informed decisions as an R&D group.</p>
+        <p>Please log the last week's hours before doing anything else today.</p>
+        <p><a href="https://northstarutilities.atlassian.net/wiki/spaces/PROC/pages/96534543/Time+Logging+Policy">Click here for information on our time logging policy.</a></p>
+        <br/>
+        <p>Thanks,</p>
+        <strong>RG!</strong>
+    </body>
+</html>
+"""
 
 for teamMember in teamMembers:
     print("")
@@ -56,8 +71,9 @@ for teamMember in teamMembers:
     if totalHoursSpent < teamMember['threshold']:
         teamMember['sendNag'] = True
         print("Threshold not met.  Send nag email.")
-        sendEmail(config.emailSender,
-                  teamMember['emailAddress'], totalHoursSpent, teamMember['name'])
+
+        Emailer.sendEmail(config.emailSender, teamMember['emailAddress'], "You forgot to log your time!", htmlMessage.format(
+            teamMember['name'], totalHoursSpent), config.emailSender)
     else:
         teamMember['sendNag'] = False
         print("Threshold met.  Don't send nag email.")

@@ -2,14 +2,12 @@ from dateutil import parser
 import config
 import datetime
 import json
-import writeSpreadsheet
-import ReportItem
-import getJiraData
-import EmailSummary
+from commonScripts import Emailer, ReportItem, getJiraData
+from xchargeReportScripts import writeSpreadsheet
 
 crossChargeReportFilename = "CrossChargeReport.xlsx"
-fromDate = "2020-10-27"
-toDate = "2020-11-25"
+fromDate = "2020-11-26"
+toDate = "2020-12-28"
 epoch = parser.parse("1970-1-1T00:00:00.000-0400").utcfromtimestamp(0)
 crossChargeWithWorklogBetweenDatesTemplate = 'labels = XCharge AND worklogDate >= {0} AND worklogDate <= {1} order by cf[10032]'
 
@@ -47,5 +45,19 @@ for reportItem in reportItems:
 
 writeSpreadsheet.generateSpreadSheet(
     crossChargeReportFilename, reportItems, fromDate, toDate)
-EmailSummary.sendEmail(
-    config.emailSender, config.emailReceiver, crossChargeReportFilename)
+
+htmlMessage = """ \
+<html>
+    <head></head>
+    <body>
+        <h2>It's cross charge report time again!</h2>
+        <p>Please review the contents of this cross charge report and send me any corrections within 24 hours.</p>
+        <p>If there are no corrections, this cross charge report will be sent out at that time.</p>
+        <p>Cheers,</p>
+        <strong>RG!</strong>
+    </body>
+</html>
+"""
+
+Emailer.sendEmail(config.emailSender, config.emailReceiver,
+                  'Cross Charge Report', htmlMessage, filePaths=crossChargeReportFilename)
