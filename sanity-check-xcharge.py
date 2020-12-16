@@ -15,6 +15,7 @@ for issue in customDevIssues['issues']:
     reportItem.status = issue['fields']['status']['name']
     reportItem.labels = issue['fields']['labels']
     reportItem.summary = issue['fields']['summary']
+    reportItem.issueType = issue['fields']['issuetype']['name']
     if issue['fields']['customfield_10032']:
         for customer in issue['fields']['customfield_10032']:
             reportItem.customers.append(customer['value'])
@@ -52,6 +53,7 @@ for issue in parentEpicIssues['issues']:
     reportItem.status = issue['fields']['status']['name']
     reportItem.labels = issue['fields']['labels']
     reportItem.summary = issue['fields']['summary']
+    reportItem.issueType = issue['fields']['issuetype']['name']
     if issue['fields']['customfield_10032']:
         for customer in issue['fields']['customfield_10032']:
             reportItem.customers.append(customer['value'])
@@ -81,6 +83,7 @@ for issue in childrenOfEpicIssues['issues']:
     reportItem.status = issue['fields']['status']['name']
     reportItem.labels = issue['fields']['labels']
     reportItem.summary = issue['fields']['summary']
+    reportItem.issueType = issue['fields']['issuetype']['name']
     if issue['fields']['customfield_10032']:
         for customer in issue['fields']['customfield_10032']:
             reportItem.customers.append(customer['value'])
@@ -90,16 +93,17 @@ for issue in childrenOfEpicIssues['issues']:
 
 # scan for warnings on the epic items
 for reportItem in childItems:
-    if reportItem.customers.__len__ == 0:
-        warning = WarningItem.WarningItem()
-        warning.warningDescription = 'No customer associated with child item.'
-        warning.warningValue = reportItem.key
-        warnings.append(warning)
-    if not "XCharge" in reportItem.labels:
-        warning = WarningItem.WarningItem()
-        warning.warningDescription = 'XCharge label not present on child item.'
-        warning.warningValue = reportItem.key
-        warnings.append(warning)
+    if not reportItem.issueType == 'Custom Dev':
+        if reportItem.customers.__len__ == 0:
+            warning = WarningItem.WarningItem()
+            warning.warningDescription = 'No customer associated with child item.'
+            warning.warningValue = reportItem.key
+            warnings.append(warning)
+        if not "XCharge" in reportItem.labels:
+            warning = WarningItem.WarningItem()
+            warning.warningDescription = 'XCharge label not present on child item.'
+            warning.warningValue = reportItem.key
+            warnings.append(warning)
 
 for warning in warnings:
     print(warning)

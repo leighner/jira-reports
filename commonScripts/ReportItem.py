@@ -12,10 +12,11 @@ class ReportItem:
     labels = []
     epicLink = ''
     customers = []
+    issueType = ''
 
     def __str__(self):
-        return 'key: {0} summary: {1} customer: {2} status: {3} parent: {4} hoursLogged: {5} estimate: {6} labels: {7} epic link: {8} customers: {9}'.format(
-            self.key, self.summary, self.customer, self.status, self.parent, str(self.hoursLogged), str(self.remainingEstimate), self.labels, self.epicLink, self.customers)
+        return 'key: {0} summary: {1} customer: {2} status: {3} parent: {4} hoursLogged: {5} estimate: {6} labels: {7} epic link: {8} customers: {9} issueType: {10}'.format(
+            self.key, self.summary, self.customer, self.status, self.parent, str(self.hoursLogged), str(self.remainingEstimate), self.labels, self.epicLink, self.customers, self.issueType)
 
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__,
