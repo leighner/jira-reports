@@ -1,28 +1,15 @@
 from commonScripts import ReportItem, getJiraData
 from sanityCheckScripts import WarningItem
+from commonScripts.getJiraData import parseJiraIssues
 
 # find all custom dev items
 customDevIssuesJQL = 'issuetype = "Custom Dev" and status in ("To Do", "In Progress", "Waiting For Release")'
 customDevIssues = getJiraData.runJiraItemQuery(customDevIssuesJQL)
 
 # pull out data for the script
-reportItems = []
-epicKeys = []
-
-for issue in customDevIssues['issues']:
-    reportItem = ReportItem.ReportItem()
-    reportItem.key = issue['key']
-    reportItem.status = issue['fields']['status']['name']
-    reportItem.labels = issue['fields']['labels']
-    reportItem.summary = issue['fields']['summary']
-    reportItem.issueType = issue['fields']['issuetype']['name']
-    if issue['fields']['customfield_10032']:
-        for customer in issue['fields']['customfield_10032']:
-            reportItem.customers.append(customer['value'])
-    if issue['fields']['customfield_10014']:
-        reportItem.epicLink = issue['fields']['customfield_10014']
-        epicKeys.append(reportItem.epicLink)
-    reportItems.append(reportItem)
+reportItems = parseJiraIssues(customDevIssues)
+issuesWithEpicLink = list(filter(lambda x: x.epicLink, reportItems))
+epicKeys = list(map(lambda x: x.epicLink, issuesWithEpicLink))
 
 # for reportItem in reportItems:
 #    print(reportItem)
@@ -45,19 +32,7 @@ for reportItem in reportItems:
 # find epic parents of the custom dev items
 parentEpicIssuesJQL = 'issuekey in ({0})'.format(", ".join(epicKeys))
 parentEpicIssues = getJiraData.runJiraItemQuery(parentEpicIssuesJQL)
-epicItems = []
-
-for issue in parentEpicIssues['issues']:
-    reportItem = ReportItem.ReportItem()
-    reportItem.key = issue['key']
-    reportItem.status = issue['fields']['status']['name']
-    reportItem.labels = issue['fields']['labels']
-    reportItem.summary = issue['fields']['summary']
-    reportItem.issueType = issue['fields']['issuetype']['name']
-    if issue['fields']['customfield_10032']:
-        for customer in issue['fields']['customfield_10032']:
-            reportItem.customers.append(customer['value'])
-    epicItems.append(reportItem)
+epicItems = parseJiraIssues(parentEpicIssues)
 
 # scan for warnings on the epic items
 for reportItem in epicItems:
@@ -75,21 +50,7 @@ for reportItem in epicItems:
 # find children of custom dev epics
 childrenOfEpicIssuesJQL = '"Epic Link" in ({0})'.format(", ".join(epicKeys))
 childrenOfEpicIssues = getJiraData.runJiraItemQuery(childrenOfEpicIssuesJQL)
-childItems = []
-
-for issue in childrenOfEpicIssues['issues']:
-    reportItem = ReportItem.ReportItem()
-    reportItem.key = issue['key']
-    reportItem.status = issue['fields']['status']['name']
-    reportItem.labels = issue['fields']['labels']
-    reportItem.summary = issue['fields']['summary']
-    reportItem.issueType = issue['fields']['issuetype']['name']
-    if issue['fields']['customfield_10032']:
-        for customer in issue['fields']['customfield_10032']:
-            reportItem.customers.append(customer['value'])
-    if issue['fields']['customfield_10014']:
-        reportItem.epicLink = issue['fields']['customfield_10014']
-    childItems.append(reportItem)
+childItems = parseJiraIssues(childrenOfEpicIssues)
 
 # scan for warnings on the epic items
 for reportItem in childItems:

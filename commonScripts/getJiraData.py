@@ -4,6 +4,7 @@ import config
 from requests.auth import HTTPBasicAuth
 import json
 from dateutil import parser
+from commonScripts import ReportItem
 
 
 baseURL = config.jiraUrl
@@ -65,3 +66,23 @@ def getHoursLoggedWithinDateRange(fromDate, toDate, key):
         if logDate >= fromDate and logDate <= toDate:
             totalSecondsSpent = totalSecondsSpent + worklog['timeSpentSeconds']
     return totalSecondsSpent / 3600
+
+
+def parseJiraIssues(issueArray):
+    issues = []
+
+    for issue in issueArray['issues']:
+        reportItem = ReportItem.ReportItem()
+        reportItem.key = issue['key']
+        reportItem.status = issue['fields']['status']['name']
+        reportItem.labels = issue['fields']['labels']
+        reportItem.summary = issue['fields']['summary']
+        reportItem.issueType = issue['fields']['issuetype']['name']
+        if issue['fields']['customfield_10032']:
+            for customer in issue['fields']['customfield_10032']:
+                reportItem.customers.append(customer['value'])
+        if issue['fields']['customfield_10014']:
+            reportItem.epicLink = issue['fields']['customfield_10014']
+        issues.append(reportItem)
+
+    return issues
